@@ -52,13 +52,6 @@ flowchart LR
 
   convergintAgent -->|inventory| inventoryReceiver
   convergintAgent -->|events| eventReceiver
-
-  style customerSite fill:#fff8e8,stroke:#e0d4f7,stroke-width:2px
-  style convergintCloud fill:#ffe8d4,stroke:#e0d4f7,stroke-width:2px
-  style securitySystem fill:#fff8e8,stroke:#d4c4a8
-  style convergintAgent fill:#fff8e8,stroke:#d4c4a8
-  style inventoryReceiver fill:#ffe8d4,stroke:#d4b4a8
-  style eventReceiver fill:#ffe8d4,stroke:#d4b4a8
 ```
 
 ## Target World (Vendor-Managed Cloud Model)
