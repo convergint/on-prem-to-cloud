@@ -31,62 +31,13 @@ This is a **high-level** document intended to align on the integration contract 
 
 Convergint-owned agent runs at the customer site and forwards inventory/events to Convergint Cloud.
 
-```mermaid
----
-config:
-  theme: base
-  layout: dagre
-  look: neo
----
-flowchart LR
-  subgraph customerSite [Customer Site]
-    securitySystem[Security System]
-    convergintAgent[Convergint Agent]
-    securitySystem <--> convergintAgent
-  end
-
-  subgraph convergintCloud [Convergint Cloud]
-    inventoryReceiver[Inventory Receiver]
-    eventReceiver[Event Receiver]
-  end
-
-  convergintAgent -->|inventory| inventoryReceiver
-  convergintAgent -->|events| eventReceiver
-```
+![Today's World](diagrams/diagram-1.svg)
 
 ## Target World (Vendor-Managed Cloud Model)
 
 Vendor-owned connector (if any) runs at the customer site; Convergint integrates directly with the vendor cloud via APIs + webhooks.
 
-```mermaid
----
-config:
-  theme: base
-  layout: elk
-  look: neo
----
-flowchart LR
- subgraph customerSite["Customer Site"]
-        securitySystem["Security System"]
-        vendorConnector["Vendor Connector<br>optional"]
-  end
- subgraph vendorCloud["Vendor Cloud"]
-        vendorInventoryApi["Inventory API"]
-        vendorWebhooks["Webhooks"]
-  end
- subgraph convergintCloud["Convergint Cloud"]
-        convergintInventorySync["Inventory Sync"]
-        convergintWebhookEndpoint["Webhook Endpoint"]
-  end
-    securitySystem <--> vendorConnector
-    customerSite <--> vendorCloud
-    vendorCloud L_vendorCloud_convergintCloud_0@<--> convergintCloud
-
-     vendorConnector:::optional
-    classDef optional stroke-dasharray:5 5
-
-    L_vendorCloud_convergintCloud_0@{ curve: linear }
-```
+![Target World](diagrams/diagram-2.svg)
 
 ## Scope
 
@@ -111,27 +62,9 @@ We prefer **credential-bound integrations**:
 - Vendors send webhooks to a Convergint endpoint secured by a vendor-provided signing secret.
 - The webhook payload must include the vendor’s `org_id` and `site_id` (or equivalent), and Convergint resolves those to our internal customer/site mapping.
 
-This is consistent with how many modern cloud integrations behave today, where vendor “Account/Org” and “Location/Site” identifiers exist and can be used for resolution.
+This is consistent with how many modern cloud integrations behave today, where vendor "Account/Org" and "Location/Site" identifiers exist and can be used for resolution.
 
-```mermaid
----
-config:
-  theme: base
-  layout: dagre
-  look: neo
----
-flowchart LR
-  subgraph convergintCloud [Convergint Cloud]
-    customerSite[Customer + Site]
-    vendorCreds[Vendor Credentials]
-  end
-
-  subgraph vendorCloud [Vendor Cloud]
-    vendorOrgSite[Org ID + Site ID]
-  end
-
-  vendorCreds -->|binds_to| vendorOrgSite
-```
+![Mapping/Binding](diagrams/diagram-3.svg)
 
 ## Minimum Data Requirements
 
@@ -190,24 +123,7 @@ Examples of event families we may adopt (depending on vendor support):
 - Convergint calls vendor cloud APIs to fetch inventory.
 - Convergint receives a complete inventory payload from the vendor cloud.
 
-```mermaid
----
-config:
-  theme: base
-  layout: dagre
-  look: neo
----
-flowchart LR
-  subgraph vendorCloud [Vendor Cloud]
-    vendorInventoryApi[Inventory API]
-  end
-
-  subgraph convergintCloud [Convergint Cloud]
-    inventorySync[Inventory Sync]
-  end
-
-  inventorySync <--> |poll| vendorInventoryApi
-```
+![Inventory Sync](diagrams/diagram-4.svg)
 
 ### 2. Real-Time Events (Push via Webhooks)
 
@@ -215,27 +131,7 @@ flowchart LR
 - Convergint verifies the signature and processes the event.
 - Device status (and related metadata) is updated; events can be recorded for downstream use.
 
-```mermaid
----
-config:
-  theme: base
-  look: neo
----
-sequenceDiagram
-  box VendorCloud
-    participant VendorPlatform as Vendor Platform
-  end
-  box ConvergintCloud
-    participant WebhookEndpoint as Webhook Endpoint
-    participant EventReceiver as Event Receiver
-  end
-
-  VendorPlatform->>WebhookEndpoint: POST health_event (signed)
-  WebhookEndpoint-->>VendorPlatform: 2xx OK (ack)
-  WebhookEndpoint-->>EventReceiver: Forward event
-
-  Note over VendorPlatform,WebhookEndpoint: Vendor retries if no 2xx response
-```
+![Webhooks](diagrams/diagram-5.svg)
 
 ### Fallback Behavior (Empty / Delayed / Offline)
 
