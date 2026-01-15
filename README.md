@@ -24,7 +24,7 @@ This is a **high-level** document intended to align on the integration contract 
 ## What We Need From Vendors
 
 - **Inventory API**: provide a cloud API that returns device inventory (including latest known status) for a given org/site.
-- **Events Webhook**: publish at least device health events (online/offline/last_seen) to a Convergint webhook endpoint. More event families are strongly preferred.
+- **Events Webhook**: publish at least device health events (online/offline) to a Convergint webhook endpoint. More event families are strongly preferred.
 - **Org/Site model**: expose stable org/account and site/location identifiers, plus basic site metadata.
 
 ## Today's World (On-Prem Agents Owned by Convergint)
