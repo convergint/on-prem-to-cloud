@@ -169,12 +169,6 @@ If you’re open to pursuing this, we’d like to collaborate on the design and 
 - A test webhook endpoint and guidance for signing/replay protection
 - Working sessions to align on your org/site model and event catalog
 
-**What we’d like from you**
-
-- Your proposed **Inventory API** approach (endpoints, scoping by org/site, pagination, rate limits)
-- Your proposed **Webhook** approach for health events (signing, retries) and a roadmap for additional event families
-- The identifiers and site metadata you can expose (org IDs, site IDs, site name/address/timezone)
-
 *For questions or next steps, contact:*
 
 **Ryan Johnston** – [ryan.johnston@convergint.com](mailto:ryan.johnston@convergint.com) Director Engineering
