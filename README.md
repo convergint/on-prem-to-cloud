@@ -62,29 +62,30 @@ Vendor-owned connector (if any) runs at the customer site; Convergint integrates
 ---
 config:
   theme: base
-  layout: dagre
+  layout: elk
   look: neo
 ---
 flowchart LR
-  subgraph customerSite [Customer Site]
-    securitySystem[Security System]
-    vendorConnector[Vendor Managed Connector]
+ subgraph customerSite["Customer Site"]
+        securitySystem["Security System"]
+        vendorConnector["Vendor Connector<br>optional"]
+  end
+ subgraph vendorCloud["Vendor Cloud"]
+        vendorInventoryApi["Inventory API"]
+        vendorWebhooks["Webhooks"]
+  end
+ subgraph convergintCloud["Convergint Cloud"]
+        convergintInventorySync["Inventory Sync"]
+        convergintWebhookEndpoint["Webhook Endpoint"]
+  end
     securitySystem <--> vendorConnector
-  end
+    customerSite <--> vendorCloud
+    vendorCloud L_vendorCloud_convergintCloud_0@<--> convergintCloud
 
-  subgraph vendorCloud [Vendor Cloud]
-    vendorInventoryApi[Inventory API]
-    vendorWebhooks[Webhooks]
-  end
+     vendorConnector:::optional
+    classDef optional stroke-dasharray:5 5
 
-  subgraph convergintCloud [Convergint Cloud]
-    convergintInventorySync[Inventory Sync]
-    convergintWebhookEndpoint[Webhook Endpoint]
-  end
-
-  vendorConnector --> vendorCloud
-  convergintInventorySync <--> |poll| vendorInventoryApi
-  vendorWebhooks -->|events| convergintWebhookEndpoint
+    L_vendorCloud_convergintCloud_0@{ curve: linear }
 ```
 
 ## Scope
