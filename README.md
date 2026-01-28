@@ -85,7 +85,7 @@ At a minimum, we need the following fields.
 - **Vendor org/account ID** (or a stable equivalent)
 - **Vendor site/location ID** (or a stable equivalent)
 - Online/offline status (optional if fully covered by events, but recommended)
-- MAC address (if available)
+- MAC address
 
 **Nice to Have**
 
@@ -96,6 +96,8 @@ At a minimum, we need the following fields.
 - Timezone
 - Last seen timestamp (if not covered in events)
 - Vendor model / firmware version
+- Warranty expiry date
+- End of support date
 
 ### Health Events (baseline)
 
