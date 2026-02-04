@@ -140,8 +140,10 @@ GET /api/v1/account
 
 ```json
 {
-  "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-  "name": "Acme Security Corp"
+  "account": {
+    "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+    "name": "Acme Security Corp"
+  }
 }
 ```
 
@@ -247,7 +249,7 @@ We expect real-world gaps. A vendor integration should support:
 
 1. **Onboarding**
    - Configure credentials (API key / OAuth app).
-   - Bind vendor org + site(s) to Convergint customer/site records.
+   - Bind vendor account + site(s) to Convergint customer/site records.
    - Configure webhook destination + signing secret.
 2. **Collection**
    - Poll inventory on a schedule.
@@ -260,7 +262,7 @@ We expect real-world gaps. A vendor integration should support:
 
 ### Authentication and Webhook Security
 
-**API Authentication**: We recommend JWT-based authentication. The vendor provides Convergint with a private key (one-time secure exchange), which Convergint uses to mint short-lived tokens (RS256) for each API request. The vendor verifies using the corresponding public key. This approach eliminates long-lived API keys and ensures tokens expire quickly if compromised.
+**API Authentication**: We recommend JWT-based authentication. Convergint generates a private key per account from the vendor's administration console. Convergint uses this key to mint short-lived tokens (RS256) for each API request, and the vendor verifies using the corresponding public key. This approach eliminates long-lived API keys and ensures tokens expire quickly if compromised.
 
 ```
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb252ZXJnaW50IiwiaWF0IjoxNzA3MDYyNDAwLCJleHAiOjE3MDcwNjI3MDB9.signature...
@@ -285,10 +287,60 @@ X-Webhook-Timestamp: 1707062400
 
 Signature is computed as `HMAC-SHA256(request_body, secret)`.
 
-**Webhook Management API** (nice to have): To enable self-service configuration, we prefer an API for webhook lifecycle management:
-- `POST /webhooks` - Register endpoint, returns signing secret
-- `GET /webhooks` - List registered webhooks
-- `DELETE /webhooks/{id}` - Remove a webhook
+**Webhook Management API** (nice to have): To enable self-service configuration, we prefer an API for webhook lifecycle management.
+
+Create webhook:
+
+```
+POST /api/v1/webhooks
+```
+
+```json
+{
+  "name": "Convergint Insights",
+  "target_url": "https://app.convergint.com/api/webhooks/vendor",
+  "status": "active"
+}
+```
+
+Response (includes generated secret):
+
+```json
+{
+  "webhook": {
+    "webhook_id": "d4e5f6a7-1234-5678-90ab-cdef12345678",
+    "name": "Convergint Insights",
+    "target_url": "https://app.convergint.com/api/webhooks/vendor",
+    "status": "active",
+    "secret": "whsec_5d5b09f6dcb2d53a93f17d2f4ad705c8..."
+  }
+}
+```
+
+List webhooks:
+
+```
+GET /api/v1/webhooks
+```
+
+```json
+{
+  "webhooks": [
+    {
+      "webhook_id": "d4e5f6a7-1234-5678-90ab-cdef12345678",
+      "name": "Convergint Insights",
+      "target_url": "https://app.convergint.com/api/webhooks/vendor",
+      "status": "active"
+    }
+  ]
+}
+```
+
+Delete webhook:
+
+```
+DELETE /api/v1/webhooks/{webhook_id}
+```
 
 We're happy to discuss the specifics of authentication and webhook setup during our working sessions.
 
@@ -302,7 +354,7 @@ If you're open to pursuing this, we'd like to collaborate on the design and impl
 
 - A sample schema for inventory + baseline health events
 - A test webhook endpoint and guidance for signing/replay protection
-- Working sessions to align on your org/site model and event catalog
+- Working sessions to align on your account/site model and event catalog
 
 *For questions or next steps, contact:*
 
