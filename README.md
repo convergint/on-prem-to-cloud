@@ -74,9 +74,13 @@ At a minimum, we need the following fields.
 
 **Identifier Best Practice**: We strongly recommend using **UUIDs** (or equivalent globally unique identifiers) for all entity IDs—devices, sites, accounts, and events. Globally unique IDs simplify event processing and eliminate ambiguity when correlating devices across locations.
 
-### Account / Site Metadata (at least once per site)
+### Account Metadata (via API key)
 
 - **Vendor org/account ID**
+- **Account name**
+
+### Site Metadata (per site)
+
 - **Vendor site/location ID**
 - **Site name**
 - **Site address** (or coordinates) and **timezone** (preferred; at minimum, one stable site descriptor)
@@ -86,7 +90,6 @@ At a minimum, we need the following fields.
 - Unique device ID
 - Device name or label
 - **Device type** (camera, door, panel, etc.)
-- **Vendor org/account ID** (or a stable equivalent)
 - **Vendor site/location ID** (or a stable equivalent)
 - Online/offline status (optional if fully covered by events, but recommended)
 - MAC address
@@ -127,10 +130,27 @@ Examples of event families we may adopt (depending on vendor support):
 
 The following examples illustrate the expected shape of API responses. These are illustrative—vendors may adapt field names and structure as needed, as long as the required data is present.
 
-### Sites API (paginated)
+### Account API
+
+Returns the account associated with the current API key. This solves the bootstrap problem: Convergint can discover which vendor account the credentials belong to.
 
 ```
-GET /api/v1/accounts/{account_id}/sites?page=1&per_page=50
+GET /api/v1/account
+```
+
+```json
+{
+  "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+  "name": "Acme Security Corp"
+}
+```
+
+### Sites API (paginated)
+
+Since the API key is bound to a single account, the account is implicit.
+
+```
+GET /api/v1/account/sites?page=1&per_page=50
 ```
 
 ```json
@@ -187,6 +207,7 @@ GET /api/v1/sites/{site_id}/inventory?page=1&per_page=100
   "event_type": "health",
   "device_id": "652efeac-8567-4253-9d61-bbc842863d33",
   "timestamp": "2026-02-04T14:32:00Z",
+  "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
   "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50",
   "data": {
     "status": "offline"
