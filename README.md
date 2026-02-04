@@ -23,9 +23,9 @@ This is a **high-level** document intended to align on the integration contract 
 
 ## What We Need From Vendors
 
-- **Inventory API**: provide a cloud API that returns device inventory (including latest known status) for a given org/site.
+- **Inventory API**: provide a cloud API that returns device inventory (including latest known status) for a given account/site.
 - **Events Webhook**: publish at least device health events (online/offline) to a Convergint webhook endpoint. More event families are strongly preferred.
-- **Org/Site model**: expose stable org/account and site/location identifiers, plus basic site metadata.
+- **Account/Site model**: expose stable account and site/location identifiers, plus basic site metadata.
 
 ## Today's World (On-Prem Agents Owned by Convergint)
 
@@ -60,9 +60,9 @@ Every payload (inventory or event) must include enough metadata to reliably map 
 
 We prefer **credential-bound integrations**:
 
-- Convergint stores vendor-issued credentials (API keys, OAuth tokens, etc.) and binds them to a specific Convergint customer and one or more sites.
+- Convergint stores vendor-issued credentials (API keys, OAuth tokens, etc.) and binds them to a specific Convergint customer account and one or more sites.
 - Vendors send webhooks to a Convergint endpoint secured by a vendor-provided signing secret.
-- The webhook payload must include the vendor's `org_id` and `site_id` (or equivalent), and Convergint resolves those to our internal customer/site mapping.
+- The webhook payload must include the vendor's `account_id` and `site_id` (or equivalent), and Convergint resolves those to our internal customer/site mapping.
 
 This is consistent with how many modern cloud integrations behave today, where vendor "Account/Org" and "Location/Site" identifiers exist and can be used for resolution.
 
@@ -76,7 +76,7 @@ At a minimum, we need the following fields.
 
 ### Account Metadata (via API key)
 
-- **Vendor org/account ID**
+- **Vendor account ID**
 - **Account name**
 
 ### Site Metadata (per site)
@@ -112,7 +112,7 @@ At a minimum, we need the following fields.
 - Unique device ID
 - **Status** (`online` / `offline` or equivalent)
 - Timestamp
-- **Vendor org/account ID**
+- **Vendor account ID**
 - **Vendor site/location ID**
 - Stable event identifier (preferred) to support idempotency/deduplication
 
