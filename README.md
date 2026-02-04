@@ -140,10 +140,8 @@ GET /api/v1/account
 
 ```json
 {
-  "account": {
-    "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-    "name": "Acme Security Corp"
-  }
+  "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+  "name": "Acme Security Corp"
 }
 ```
 
@@ -307,13 +305,11 @@ Response (includes generated secret):
 
 ```json
 {
-  "webhook": {
-    "webhook_id": "d4e5f6a7-1234-5678-90ab-cdef12345678",
-    "name": "Convergint Insights",
-    "target_url": "https://app.convergint.com/api/webhooks/vendor",
-    "status": "active",
-    "secret": "whsec_5d5b09f6dcb2d53a93f17d2f4ad705c8..."
-  }
+  "webhook_id": "d4e5f6a7-1234-5678-90ab-cdef12345678",
+  "name": "Convergint Insights",
+  "target_url": "https://app.convergint.com/api/webhooks/vendor",
+  "status": "active",
+  "secret": "whsec_5d5b09f6dcb2d53a93f17d2f4ad705c8..."
 }
 ```
 
