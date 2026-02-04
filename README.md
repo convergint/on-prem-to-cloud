@@ -45,9 +45,11 @@ We're looking for two core capabilities from a vendor's cloud platform:
 
 1. **Asset Inventory**
    - Pull a full list of devices/assets for a given Convergint customer/site.
-   - At minimum, inventory must reflect each device’s **latest known status**.
+   - At minimum, inventory must reflect each device's **latest known status**.
+   - Inventory API must support **pagination** (inventories can contain hundreds or thousands of devices).
+   - Inventory API must support **filtering by site/location** (e.g., "for this site, return all assets").
 2. **Live Events (Push Preferred)**
-   - **Baseline**: device health events (online/offline/last_seen) delivered via webhooks.
+   - **Baseline**: device health events (online/offline/last_seen) delivered via webhooks. *(If webhooks are not yet available, Convergint can poll inventory as an interim measure, provided each asset includes its last known status.)*
    - **Preferred**: additional event families the vendor already exposes through on-prem SDKs (alarms/trouble, access events, video/VMS events, etc.).
 
 Every payload (inventory or event) must include enough metadata to reliably map vendor entities to the correct Convergint customer and site.
@@ -60,7 +62,7 @@ We prefer **credential-bound integrations**:
 
 - Convergint stores vendor-issued credentials (API keys, OAuth tokens, etc.) and binds them to a specific Convergint customer and one or more sites.
 - Vendors send webhooks to a Convergint endpoint secured by a vendor-provided signing secret.
-- The webhook payload must include the vendor’s `org_id` and `site_id` (or equivalent), and Convergint resolves those to our internal customer/site mapping.
+- The webhook payload must include the vendor's `org_id` and `site_id` (or equivalent), and Convergint resolves those to our internal customer/site mapping.
 
 This is consistent with how many modern cloud integrations behave today, where vendor "Account/Org" and "Location/Site" identifiers exist and can be used for resolution.
 
@@ -69,6 +71,8 @@ This is consistent with how many modern cloud integrations behave today, where v
 ## Minimum Data Requirements
 
 At a minimum, we need the following fields.
+
+**Identifier Best Practice**: We strongly recommend using **UUIDs** (or equivalent globally unique identifiers) for all entity IDs—devices, sites, accounts, and events. Globally unique IDs simplify event processing and eliminate ambiguity when correlating devices across locations.
 
 ### Account / Site Metadata (at least once per site)
 
@@ -98,6 +102,7 @@ At a minimum, we need the following fields.
 - Vendor model / firmware version
 - Warranty expiry date
 - End of support date
+- System/server ID (to distinguish devices when multiple logical systems of the same vendor exist at one site)
 
 ### Health Events (baseline)
 
@@ -117,6 +122,79 @@ Examples of event families we may adopt (depending on vendor support):
 - Alarm/trouble conditions
 - Access-control activity (granted/denied, door forced/held, etc.)
 - Video/VMS health (recording failure, stream loss, storage issues)
+
+## Sample API Request/Response
+
+The following examples illustrate the expected shape of API responses. These are illustrative—vendors may adapt field names and structure as needed, as long as the required data is present.
+
+### Sites API (paginated)
+
+```
+GET /api/v1/accounts/{account_id}/sites?page=1&per_page=50
+```
+
+```json
+{
+  "sites": [
+    {
+      "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50",
+      "name": "US - 101 Chicago, IL",
+      "address": "2000 Center Drive, Suite 315A, Hoffman Estates, IL 60192",
+      "timezone": "America/Chicago"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 50,
+    "total_pages": 3,
+    "total_count": 127
+  }
+}
+```
+
+### Inventory API (paginated)
+
+```
+GET /api/v1/sites/{site_id}/inventory?page=1&per_page=100
+```
+
+```json
+{
+  "devices": [
+    {
+      "device_id": "652efeac-8567-4253-9d61-bbc842863d33",
+      "name": "Front Lobby Door",
+      "type": "door",
+      "status": "online",
+      "mac_address": "00:0f:e5:14:b2:1e",
+      "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 100,
+    "total_pages": 5,
+    "total_count": 487
+  }
+}
+```
+
+### Health Event Payload (webhook)
+
+```json
+{
+  "event_id": "698219ad-4de9-896d-3be0-66cb00000001",
+  "event_type": "health",
+  "device_id": "652efeac-8567-4253-9d61-bbc842863d33",
+  "timestamp": "2026-02-04T14:32:00Z",
+  "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50",
+  "data": {
+    "status": "offline"
+  }
+}
+```
+
+Initially, we are focused on health events. However, this structure should be flexible enough to accommodate other event types (access, alarm, etc.) in the future. The `event_type` field distinguishes between event families, and `data` contains the event-specific attributes.
 
 ## Target Workflows
 
@@ -163,7 +241,7 @@ We expect real-world gaps. A vendor integration should support:
 
 We recognize this model may be net-new work for vendors that historically integrate primarily via on-prem SDKs.
 
-If you’re open to pursuing this, we’d like to collaborate on the design and implementation details together.
+If you're open to pursuing this, we'd like to collaborate on the design and implementation details together.
 
 **What we can provide**
 
