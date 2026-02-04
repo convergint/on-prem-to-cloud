@@ -258,6 +258,19 @@ We expect real-world gaps. A vendor integration should support:
    - Signed webhooks with replay protection (timestamp window recommended).
    - Retry semantics and idempotency to prevent duplicates.
 
+### Authentication and Webhook Security
+
+**API Authentication**: We recommend JWT-based authentication. The vendor provides Convergint with a private key (one-time secure exchange), which Convergint uses to mint short-lived tokens (RS256) for each API request. The vendor verifies using the corresponding public key. This approach eliminates long-lived API keys and ensures tokens expire quickly if compromised.
+
+**Webhook Signatures**: All webhook payloads should be signed using HMAC-SHA256 with a shared secret. The signature should be included in a request header (e.g., `X-Webhook-Signature`), along with a timestamp for replay protection. Convergint verifies the signature before processing any event.
+
+**Webhook Management API** (nice to have): To enable self-service configuration, we prefer an API for webhook lifecycle management:
+- `POST /webhooks` - Register endpoint, returns signing secret
+- `GET /webhooks` - List registered webhooks
+- `DELETE /webhooks/{id}` - Remove a webhook
+
+We're happy to discuss the specifics of authentication and webhook setup during our working sessions.
+
 ## Next Steps (Collaborative)
 
 We recognize this model may be net-new work for vendors that historically integrate primarily via on-prem SDKs.
