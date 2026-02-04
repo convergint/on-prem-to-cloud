@@ -262,7 +262,28 @@ We expect real-world gaps. A vendor integration should support:
 
 **API Authentication**: We recommend JWT-based authentication. The vendor provides Convergint with a private key (one-time secure exchange), which Convergint uses to mint short-lived tokens (RS256) for each API request. The vendor verifies using the corresponding public key. This approach eliminates long-lived API keys and ensures tokens expire quickly if compromised.
 
+```
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb252ZXJnaW50IiwiaWF0IjoxNzA3MDYyNDAwLCJleHAiOjE3MDcwNjI3MDB9.signature...
+```
+
+Decoded payload (token expires in 1 hour):
+
+```json
+{
+  "iss": "convergint",
+  "iat": 1707062400,
+  "exp": 1707066000
+}
+```
+
 **Webhook Signatures**: All webhook payloads should be signed using HMAC-SHA256 with a shared secret. The signature should be included in a request header (e.g., `X-Webhook-Signature`), along with a timestamp for replay protection. Convergint verifies the signature before processing any event.
+
+```
+X-Webhook-Signature: sha256=5d5b09f6dcb2d53a93f17d2f4ad705c8e8a0123456789abcdef...
+X-Webhook-Timestamp: 1707062400
+```
+
+Signature is computed as `HMAC-SHA256(request_body, secret)`.
 
 **Webhook Management API** (nice to have): To enable self-service configuration, we prefer an API for webhook lifecycle management:
 - `POST /webhooks` - Register endpoint, returns signing secret
