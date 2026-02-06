@@ -96,6 +96,7 @@ At a minimum, we need the following fields.
 
 **Nice to Have**
 
+- Parent device ID (to represent device hierarchy, e.g., a camera connected to a specific NVR)
 - IP
 - Hostname
 - Site name
@@ -187,7 +188,8 @@ GET /api/v1/sites/{site_id}/inventory?page=1&per_page=100
       "type": "door",
       "status": "online",
       "mac_address": "00:0f:e5:14:b2:1e",
-      "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50"
+      "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50",
+      "parent_id": "b3a1f7d2-4e89-4c12-a5d6-9f8e7c6b5a43"
     }
   ],
   "pagination": {
