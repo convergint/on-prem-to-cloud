@@ -112,7 +112,7 @@ At a minimum, we need the following fields.
 
 - Unique device ID
 - **Status** (`online` / `offline` or equivalent)
-- Timestamp
+- Timestamp (ISO 8601, UTC)
 - **Vendor account ID**
 - **Vendor site/location ID**
 - Stable event identifier (preferred) to support idempotency/deduplication
@@ -219,6 +219,27 @@ GET /api/v1/sites/{site_id}/inventory?page=1&per_page=100
 
 Initially, we are focused on health events. However, this structure should be flexible enough to accommodate other event types (access, alarm, etc.) in the future. The `event_type` field distinguishes between event families, and `data` contains the event-specific attributes.
 
+Keep payloads compact. Send the required event fields rather than full entity snapshots or configuration dumps. Where an event maps to a person, Convergint prefers a stable opaque identifier rather than names, email addresses, phone numbers, or employee records.
+
+### Example: extending to other event families
+
+Health events are the baseline ask. This illustrates how the same envelope carries other families once they are in scope. The structure is identical; only `event_type` and the contents of `data` change.
+
+```json
+{
+  "event_id": "698219ad-4de9-896d-3be0-66cb00000002",
+  "event_type": "access",
+  "device_id": "652efeac-8567-4253-9d61-bbc842863d33",
+  "timestamp": "2026-02-04T14:35:22Z",
+  "account_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+  "site_id": "5e6693c0-091d-47a2-b90a-6c15531b3c50",
+  "data": {
+    "action": "access_granted",
+    "message": "Access granted at main entrance"
+  }
+}
+```
+
 ## Target Workflows
 
 ### 1. Inventory Sync (Poll)
@@ -259,6 +280,7 @@ We expect real-world gaps. A vendor integration should support:
 4. **Operational Expectations**
    - Signed webhooks with replay protection (timestamp window recommended).
    - Retry semantics and idempotency to prevent duplicates.
+   - One event per delivery preferred; if events are batched, each must carry its own stable event ID.
 
 ### Authentication and Webhook Security
 
