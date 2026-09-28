@@ -91,6 +91,7 @@ At a minimum, we need the following fields.
 - Device name or label
 - **Device type** (camera, door, panel, etc.)
 - **Vendor site/location ID** (or a stable equivalent)
+- **Vendor model** (manufacturer/model)
 - Online/offline status (optional if fully covered by events, but recommended)
 - MAC address
 
@@ -103,7 +104,7 @@ At a minimum, we need the following fields.
 - Site address and/or coordinates
 - Timezone
 - Last seen timestamp (if not covered in events)
-- Vendor model / firmware version
+- Firmware version
 - Warranty expiry date
 - End of support date
 - System/server ID (to distinguish devices when multiple logical systems of the same vendor exist at one site)
